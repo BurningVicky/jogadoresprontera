@@ -62,10 +62,17 @@ const API = "http://localhost:8000/api.php/jogadores";
 function get(id){ return document.getElementById(id).value || "" }
 function saida(d){ document.getElementById("saida").innerText = JSON.stringify(d,null,2) }
 
+// --- FUNÇÃO PARA LIMPAR CAMPOS ---
+function limparCampos(ids) {
+    ids.forEach(id => {
+        document.getElementById(id).value = '';
+    });
+}
+
 // --- MAPA de conversão dos campos do front para o back ---
 function mapCriar() {
     return {
-        nickname: get("nick"),    // front usa "nick" -> back precisa "nickname"
+        nickname: get("nick"),    
         classe: get("classe"),
         nivel: Number(get("nivel") || 0),
         email: get("email")
@@ -94,8 +101,14 @@ async function buscar(){
     if(!id) return alert("Digite um ID!");
     try {
         const res = await fetch(`${API}/${id}`);
-        saida(await res.json());
-    } catch(e){ saida({erro:"Falha ao buscar", detalhe: String(e)}); }
+        const resultado = await res.json();
+        saida(resultado);
+        // Limpa apenas o campo de busca após a operação
+        limparCampos(['buscarId']);
+    } catch(e){ 
+        saida({erro:"Falha ao buscar", detalhe: String(e)}); 
+        limparCampos(['buscarId']);
+    }
 }
 
 async function criar(){
@@ -106,7 +119,10 @@ async function criar(){
             headers: {"Content-Type":"application/json"},
             body: JSON.stringify(body)
         });
-        saida(await res.json());
+        const resultado = await res.json();
+        saida(resultado);
+        // Limpa todos os campos de criação após sucesso
+        limparCampos(['nick', 'classe', 'nivel', 'email']);
     } catch(e){
         saida({erro:"Falha ao criar", detalhe: String(e)});
     }
@@ -122,7 +138,10 @@ async function editar(){
             headers: {"Content-Type":"application/json"},
             body: JSON.stringify(body)
         });
-        saida(await res.json());
+        const resultado = await res.json();
+        saida(resultado);
+        // Limpa todos os campos de edição após a operação
+        limparCampos(['editId', 'editNick', 'editClass', 'editNivel', 'editEmail']);
     } catch(e){
         saida({erro:"Falha ao atualizar", detalhe: String(e)});
     }
@@ -133,9 +152,13 @@ async function excluir(){
     if(!id) return alert("Digite o ID para deletar!");
     try {
         const res = await fetch(`${API}/${id}`, { method: "DELETE" });
-        saida(await res.json());
+        const resultado = await res.json();
+        saida(resultado);
+        // Limpa o campo de deleção após a operação
+        limparCampos(['delId']);
     } catch(e){
         saida({erro:"Falha ao deletar", detalhe: String(e)});
+        limparCampos(['delId']);
     }
 }
 </script>
