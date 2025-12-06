@@ -14,8 +14,9 @@ $db->exec("CREATE TABLE IF NOT EXISTS jogadores (
 $stmt = $db->prepare("INSERT OR IGNORE INTO jogadores (nickname, classe, nivel, email) VALUES (?, ?, ?, ?)");
 
 $exemplos = [
-    ['ShadowRider', 'Arqueiro', 35, 'shadow@example.com'],
-    ['IronMage', 'Mago', 28, 'ironmage@example.com']
+    ['Bandeira', 'Mago', 30, 'bandeira@example.com'],
+    ['Macedo', 'Arqueiro', 29, 'macedo@example.com'],
+    ['Albandês', 'Cavaleiro', 50, 'albandes@example.com']
 ];
 
 foreach ($exemplos as $j) {

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Jogadores Online</title>
+<style>
+    body { font-family: Arial; background:#0d1117; color:#fff; text-align:center; padding:20px; }
+    h1 { color:#58a6ff; }
+    section { background:#161b22; padding:20px; border-radius:10px; width:60%; margin:15px auto; }
+    input,button { padding:10px; border:none; border-radius:6px; margin:5px; font-size:14px;}
+    button { background:#238636; color:white; cursor:pointer;}
+    button:hover {background:#2ea043;}
+    pre{background:#000;padding:10px;width:80%;margin:10px auto;text-align:left;border-radius:6px;}
+</style>
+</head>
+<body>
+
+<h1>🕹 Painel — Jogadores de Prontera</h1>
+
+<section>
+<h2>📄 Listar Jogadores</h2>
+<button onclick="listar()">Listar Todos</button>
+</section>
+
+<section>
+<h2>🔎 Buscar por ID</h2>
+<input id="buscarId" type="number" placeholder="ID">
+<button onclick="buscar()">Buscar</button>
+</section>
+
+<section>
+<h2>➕ Criar Jogador</h2>
+<input id="nick" placeholder="Nickname">
+<input id="classe" placeholder="Classe">
+<input id="nivel" type="number" placeholder="Nível">
+<input id="email" type="email" placeholder="Email">
+<button onclick="criar()">Cadastrar</button>
+</section>
+
+<section>
+<h2>✏ Atualizar Jogador</h2>
+<input id="editId" type="number" placeholder="ID">
+<input id="editNick" placeholder="Nickname">
+<input id="editClass" placeholder="Classe">
+<input id="editNivel" type="number" placeholder="Nível">
+<input id="editEmail" type="email" placeholder="Email">
+<button onclick="editar()">Atualizar</button>
+</section>
+
+<section>
+<h2>❌ Deletar Jogador</h2>
+<input id="delId" type="number" placeholder="ID">
+<button onclick="excluir()">Deletar</button>
+</section>
+
+<pre id="saida">Saída da API aparecerá aqui...</pre>
+
+
+<script>
+const API = "http://localhost:8000/api.php/jogadores";
+
+function get(id){ return document.getElementById(id).value || "" }
+function saida(d){ document.getElementById("saida").innerText = JSON.stringify(d,null,2) }
+
+// --- MAPA de conversão dos campos do front para o back ---
+function mapCriar() {
+    return {
+        nickname: get("nick"),    // front usa "nick" -> back precisa "nickname"
+        classe: get("classe"),
+        nivel: Number(get("nivel") || 0),
+        email: get("email")
+    };
+}
+
+function mapEditar() {
+    return {
+        nickname: get("editNick"),
+        classe: get("editClass"),
+        nivel: Number(get("editNivel") || 0),
+        email: get("editEmail")
+    };
+}
+
+// --- CRUD FUNCTIONS ---
+async function listar(){
+    try {
+        const res = await fetch(API);
+        saida(await res.json());
+    } catch(e){ saida({erro:"Falha ao listar", detalhe: String(e)}); }
+}
+
+async function buscar(){
+    const id = get("buscarId");
+    if(!id) return alert("Digite um ID!");
+    try {
+        const res = await fetch(`${API}/${id}`);
+        saida(await res.json());
+    } catch(e){ saida({erro:"Falha ao buscar", detalhe: String(e)}); }
+}
+
+async function criar(){
+    const body = mapCriar();
+    try {
+        const res = await fetch(API, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(body)
+        });
+        saida(await res.json());
+    } catch(e){
+        saida({erro:"Falha ao criar", detalhe: String(e)});
+    }
+}
+
+async function editar(){
+    const id = get("editId");
+    if(!id) return alert("Digite o ID para atualizar!");
+    const body = mapEditar();
+    try {
+        const res = await fetch(`${API}/${id}`, {
+            method: "PUT",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(body)
+        });
+        saida(await res.json());
+    } catch(e){
+        saida({erro:"Falha ao atualizar", detalhe: String(e)});
+    }
+}
+
+async function excluir(){
+    const id = get("delId");
+    if(!id) return alert("Digite o ID para deletar!");
+    try {
+        const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+        saida(await res.json());
+    } catch(e){
+        saida({erro:"Falha ao deletar", detalhe: String(e)});
+    }
+}
+</script>
+
+</body>
+</html>
